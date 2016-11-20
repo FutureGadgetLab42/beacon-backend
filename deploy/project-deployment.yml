@@ -1,0 +1,20 @@
+---
+
+- hosts: blue-servers
+  become: yes
+  remote_user: cmsc435
+  roles:
+    - { role: project-deployment, tags: ['blue-servers']}
+
+- hosts: gold-servers
+  become: yes
+  remote_user: cmsc435
+  roles:
+    - { role: project-deployment, tags: ['gold-servers']}
+
+
+- hosts: all
+  become: yes
+  remote_user: cmsc435
+  roles:
+    - { role: project-deployment, tags: ['all'] }

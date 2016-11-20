@@ -1,0 +1,7 @@
+---
+
+- name: Install Java
+  include: install-java.yml
+
+- name: Run application
+  include: deploy-application.yml
