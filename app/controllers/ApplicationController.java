@@ -44,7 +44,9 @@ public class ApplicationController extends Controller {
             response = badRequest("Invalid request format: " + request().body());
         } else {
             try {
-                response = ok(Json.toJson(BEACON_FACTORY.buildBeacon(requestJson)));
+                Beacon resultBeacon = BEACON_FACTORY.buildBeacon(requestJson);
+                DATABASE_ACCESSOR.saveBeacon(resultBeacon);
+                response = ok(Json.toJson(resultBeacon));
             } catch (BeaconCreationExcecption e) {
                 response = badRequest("Invalid request: " + requestJson);
             }
