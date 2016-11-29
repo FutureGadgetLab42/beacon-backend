@@ -1,13 +1,15 @@
 name := """beacon-backend"""
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava)
-
-scalaVersion := "2.11.7"
+lazy val myProject = (project in file("."))
+  .enablePlugins(PlayJava, PlayEbean)
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   javaJdbc,
+  javaJpa,
+  "mysql" % "mysql-connector-java" % "5.1.18",
   cache,
   javaWs
 )

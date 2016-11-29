@@ -1,60 +1,76 @@
 package controllers;
 
-import beacon_builder.BeaconBuilder;
+import beacon_factory.BeaconFactory;
 import com.fasterxml.jackson.databind.JsonNode;
-import data_accessors.DatabaseAccessor;
-import models.BeaconModel;
+import data_sources.DatabaseAccessor;
+import exceptions.BeaconCreationExcecption;
+import models.Beacon;
+import play.Logger;
+import play.db.ebean.Transactional;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 public class ApplicationController extends Controller {
 
-    @Inject
-    private static DatabaseAccessor DATABASE_ACCESSOR;
-    private static BeaconBuilder BEACON_BUILDER = new BeaconBuilder();
+    @Inject private static DatabaseAccessor databaseAccessor;
+    private static final BeaconFactory BEACON_FACTORY = new BeaconFactory();
     private Result HOMEPAGE = ok("homepage");
 
     public Result index() {
         return HOMEPAGE;
     }
 
+    /**
+     * Controller method for requesting a new Beacon. This method must be routed to
+     * via a POST request with a JSON body containing the desired Beacon attributes.
+     *
+     * @return response
+     *              The HTTP response containing either the serialized Beacon, or an error message
+     * */
     @BodyParser.Of(BodyParser.Json.class)
+    @Transactional
     public Result requestNewBeacon() {
         JsonNode requestJson = request().body().asJson();
+        Result response;
+
         if(requestJson == null) {
-            return badRequest("Invalid request format: " + request().body());
-        }
-
-        return validateRequest(requestJson);
-    }
-
-    private Result validateRequest(JsonNode requestJson) {
-        Result result = ok("beacon requested");
-        String beaconName = requestJson.findPath("beaconName").asText(),
-                userId = requestJson.findPath("userId").asText(), description = requestJson.findPath("description").asText();
-        if(beaconName == null) {
-            result = badRequest("Bad request - does not contain name: " + requestJson);
-        } else if(description == null) {
-            result = badRequest("Bad request - does not contain description: " + requestJson);
-        } else if(userId == null) {
-            result = badRequest("Bad request - does not contain user ID: " + requestJson);
+            Logger.error("Invalid request received " + request().body().asText());
+            response = badRequest("Invalid request format: " + request().body());
         } else {
-            BeaconModel resultingBeacon = BEACON_BUILDER.buildBeacon(beaconName, userId, description);
-            return ok(resultingBeacon.getKey());
+            try {
+                response = ok(Json.toJson(BEACON_FACTORY.buildBeacon(requestJson)));
+            } catch (BeaconCreationExcecption e) {
+                response = badRequest("Invalid request: " + requestJson);
+            }
         }
-        return ok("beacon requested");
+
+        return response;
     }
 
-    private Optional<String> extractName(JsonNode json) {
-        String nameNode = json.findPath("name").textValue();
-        return nameNode == null ? Optional.empty() : Optional.of(nameNode);
-    }
-
+    /**
+     * Controller method to view all Beacons currently available from the data source
+     *
+     * @return response
+     *              The HTTP response containing either a serialized list of beacons, or an
+     *              error message if an exception is thrown.
+     * */
     public Result viewBeacons() {
-        return ok("viewing beacons");
+        Logger.info("Received request to view beacons");
+        Optional<List<Beacon>> result = databaseAccessor.listAll();
+        Result response;
+        if(result.isPresent()) {
+            List<Beacon> beacons = result.get();
+            response = ok(Json.toJson(beacons));
+        } else {
+            response = ok("No Beacons have been initialized");
+        }
+        return response;
     }
+
 }
