@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public class ApplicationController extends Controller {
 
-    @Inject private static DatabaseAccessor databaseAccessor;
+    @Inject private static final DatabaseAccessor DATABASE_ACCESSOR = new DatabaseAccessor();
     private static final BeaconFactory BEACON_FACTORY = new BeaconFactory();
     private Result HOMEPAGE = ok("homepage");
 
@@ -62,7 +62,7 @@ public class ApplicationController extends Controller {
      * */
     public Result viewBeacons() {
         Logger.info("Received request to view beacons");
-        Optional<List<Beacon>> result = databaseAccessor.listAll();
+        Optional<List<Beacon>> result = DATABASE_ACCESSOR.listAll();
         Result response;
         if(result.isPresent()) {
             List<Beacon> beacons = result.get();
