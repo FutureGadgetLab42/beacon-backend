@@ -1,1 +1,10 @@
-Beacons!
+Welcome to the Beacon Project.
+
+To set up the project for development, do the following:
+
+1) Install IntelliJ IDEA
+2) Install Scala and SBT
+3) Install IntelliJ Scala plugin
+4) In IntelliJ, select "New Project" -> "From Existing Sources"
+5) Select "Import project from external model" and "SBT"
+6) Click through the menu, and the project should build in a minute or two
