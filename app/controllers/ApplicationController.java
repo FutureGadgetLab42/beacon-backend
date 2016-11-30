@@ -4,7 +4,10 @@ import beacon_factory.BeaconFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import data_sources.DatabaseAccessor;
 import exceptions.BeaconCreationExcecption;
+import exceptions.BeaconSearchException;
+import exceptions.ConfigurationException;
 import models.Beacon;
+import models.BeaconRendezvous;
 import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.Json;
@@ -13,6 +16,10 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +28,8 @@ public class ApplicationController extends Controller {
     @Inject private static final DatabaseAccessor DATABASE_ACCESSOR = new DatabaseAccessor();
     private static final BeaconFactory BEACON_FACTORY = new BeaconFactory();
     private Result HOMEPAGE = ok("homepage");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final String PAYLOAD_PATH = "beacon.png"; //"transparent_pixel.png";
 
     public Result index() {
         return HOMEPAGE;
@@ -62,17 +71,73 @@ public class ApplicationController extends Controller {
      *              The HTTP response containing either a serialized list of beacons, or an
      *              error message if an exception is thrown.
      * */
+    @Transactional
     public Result viewBeacons() {
         Logger.info("Received request to view beacons");
-        Optional<List<Beacon>> result = DATABASE_ACCESSOR.listAll();
+        Optional<List<Beacon>> allBeacons = DATABASE_ACCESSOR.listAllBeacons();
         Result response;
-        if(result.isPresent()) {
-            List<Beacon> beacons = result.get();
+        if(allBeacons.isPresent()) {
+            List<Beacon> beacons = allBeacons.get();
             response = ok(Json.toJson(beacons));
         } else {
             response = ok("No Beacons have been initialized");
         }
         return response;
+    }
+
+    /**
+     * Retrieves the Beacon corresponding to the specified key
+     *
+     * @return response
+     *          An HTTP response containing either the desired Beacon, or an error
+     *          response if the given key is not present.
+     * */
+    @Transactional
+    public Result findBeaconByKey() {
+        Result response = ok("ok");
+        Logger.info("Received request to find Beacon with key: ");
+        return response;
+    }
+
+    /**
+     * Records an instance of a Beacon "phoning home"
+     *
+     * @param beaconKey
+     *          The unique 32 character key associated with the desired Beacon.
+     *
+     * @return response
+     *          An HTTP response containing
+     * */
+    @Transactional
+    public Result recordBeaconRendezvous(String beaconKey) throws URISyntaxException {
+        if(beaconKey == null || beaconKey.isEmpty()) {
+            return badRequest("Bad Beacon access request: " + request());
+        }
+
+        Result response;
+        String remoteAddress = request().remoteAddress();
+
+        try{
+            BeaconRendezvous rendezvous = new BeaconRendezvous(beaconKey, remoteAddress);
+            DATABASE_ACCESSOR.recordBeaconRendezvous(rendezvous);
+            response = ok(payload());
+        } catch(BeaconSearchException bse) {
+            Logger.warn("Invalid request to record Beacon access: " + beaconKey);
+            response = badRequest("Invalid request to record Beacon access: " + beaconKey);
+        } catch(URISyntaxException e) {
+            Logger.error("Unable to locate payload due to invalid URI: " + PAYLOAD_PATH);
+            response = internalServerError();
+        }
+        return response;
+    }
+
+    private File payload() throws URISyntaxException {
+        URL payloadUrl = getClass().getClassLoader().getResource(PAYLOAD_PATH);
+        if(payloadUrl == null) {
+            throw new ConfigurationException("Unable to locate payload: " + PAYLOAD_PATH);
+        } else {
+            return new File(payloadUrl.toURI());
+        }
     }
 
 }

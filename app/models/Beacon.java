@@ -2,8 +2,8 @@ package models;
 
 import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CreatedTimestamp;
-import play.data.format.Formats;
-import play.data.validation.Constraints;
+import play.data.format.Formats.DateTime;
+import play.data.validation.Constraints.Required;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,12 +16,12 @@ public class Beacon extends Model {
     @Id @GeneratedValue
     public Long id;
 
-    @Constraints.Required
-    public String beaconKey;
-
-    @Formats.DateTime(pattern="dd/MM/yyyy")
+    @DateTime(pattern="dd/MM/yyyy")
     @CreatedTimestamp
     public Date creationDate;
+
+    @Required
+    public String beaconKey;
 
     public String userId, beaconName, description;
 
@@ -39,11 +39,9 @@ public class Beacon extends Model {
     }
 
     public static class BeaconBuilder {
-        private String beaconKey;
 
+        private String beaconKey, userId, beaconName, description;
         private Date creationDate;
-
-        private String userId, beaconName, description;
 
         public BeaconBuilder(String beaconKey) {
             this.beaconKey = beaconKey;

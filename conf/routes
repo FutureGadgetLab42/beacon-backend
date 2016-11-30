@@ -6,3 +6,4 @@
 GET     /                           controllers.ApplicationController.index
 POST    /requestBeacon              controllers.ApplicationController.requestNewBeacon
 GET     /viewBeacons                controllers.ApplicationController.viewBeacons
+GET     /rendezvous/:key            controllers.ApplicationController.recordBeaconRendezvous(key: String)
