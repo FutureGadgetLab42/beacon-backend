@@ -1,3 +1,27 @@
 ---
 
-- include: vars.yml
+- include_vars:
+    file: vars.yml
+    dir: "group_vars/vertigo"
+    name: vars-file
+
+- name: Build executable
+  action: shell cd "{{ repo_path }}" && activator clean dist
+  async: 300
+  tags:
+     - create-executable
+
+- name: Unarchive project
+  unarchive: src="{{ zip_path }}" dest="{{ destination_zip_path }}"
+  tags:
+    - unarchive-executable
+
+- name: Set permissions on start script
+  file: path="{{ start_script_path }}" mode=0755
+  tags:
+    - set-permissions
+
+- name: Run start script
+  command: path="{{ start_script_path }}" -Dplay.crypto.secret="{{ application_secret }}" -Dplay.evolutions.db.default.autoApply=true -Dplay.evolutions.db.default.autoApplyDowns=true &
+  tags:
+    - start-application

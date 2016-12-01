@@ -8,3 +8,6 @@ To set up the project for development, do the following:
 4) In IntelliJ, select "New Project" -> "From Existing Sources"
 5) Select "Import project from external model" and "SBT"
 6) Click through the menu, and the project should build in a minute or two
+
+To run the Ansible playbook
+ansible-playbook project-deployment.yml

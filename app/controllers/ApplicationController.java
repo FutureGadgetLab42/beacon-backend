@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+// TODO: configure serializer to output dates not in Unix time
 public class ApplicationController extends Controller {
 
     @Inject private static final DatabaseAccessor DATABASE_ACCESSOR = new DatabaseAccessor();

@@ -1,0 +1,16 @@
+---
+
+- include_vars:
+    file: vars.yml
+    dir: "group_vars/vertigo"
+    name: vars-file
+
+- name: Add apt repository for Oracle Java
+  become: true
+  apt_repository: repo={{ java_apt_repo }}
+  tags:
+    - add-java-repo
+
+- name: Accept License Agreement
+  become: true
+  debconf: name="{{ java_installer_name }}" question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
