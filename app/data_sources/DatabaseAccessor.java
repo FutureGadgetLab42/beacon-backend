@@ -18,8 +18,18 @@ public class DatabaseAccessor {
      * */
     @Transactional
     public Optional<List<Beacon>> listAllBeacons() {
-        List<Beacon> result = Beacon.FIND.all();
-        return result == null? Optional.empty() : Optional.of(result);
+        Optional<List<Beacon>> result;
+        List<Beacon> beaconList = Beacon.FIND.all();
+
+        if(beaconList == null) {
+            result = Optional.empty();
+            Logger.info("Attempted to list all beacons while database is empty");
+        } else {
+            beaconList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
+            result = Optional.of(beaconList);
+        }
+
+        return result;
     }
 
     /**
@@ -30,13 +40,16 @@ public class DatabaseAccessor {
      * */
     @Transactional
     public Optional<Beacon> findBeaconById(Long id) {
-        Beacon result = Beacon.FIND.byId(id);
-        if(result == null) {
+        Optional<Beacon> result;
+
+        Beacon beacon = Beacon.FIND.byId(id);
+        if(beacon == null) {
             Logger.debug("No beacon found with ID: " + id);
-            return Optional.empty();
+            result = Optional.empty();
         } else {
-            return Optional.of(result);
+            result = Optional.of(beacon);
         }
+        return result;
     }
 
     /**
@@ -69,12 +82,13 @@ public class DatabaseAccessor {
     @Transactional
     public Optional<List<Beacon>> findBeaconsForUser(String userName) {
         List<Beacon> result = Beacon.FIND.where()
-                .like("userName", "%" + userName + "%")
+                .like("userId", "%" + userName + "%")
                 .findList();
         if(result.isEmpty()) {
             Logger.debug("Unable to find Beacons for user: " + userName);
             return Optional.empty();
         } else {
+            result.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
             return Optional.of(result);
         }
     }
@@ -83,19 +97,25 @@ public class DatabaseAccessor {
      * Finds all beacons created on the given date
      *
      * @param date
-     *          The desired creation date for Beacons to return
+     *          The desired creation date for Beacons to return, sorted by ascending date
      * */
     @Transactional
     public  Optional<List<Beacon>> findBeaconsByDate(Date date) {
-        List<Beacon> result = Beacon.FIND.where()
+        Optional<List<Beacon>> result;
+
+        List<Beacon> beaconList = Beacon.FIND.where()
                 .between("creationDate", date, date)
                 .findList();
-        if(result.isEmpty()) {
-            Logger.debug("No beacons on requested date: " + date);
-            return Optional.empty();
+
+        if(beaconList == null) {
+            Logger.info("Could not find beacons on date: " + date);
+            result = Optional.empty();
         } else {
-            return Optional.of(result);
+            beaconList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
+            result = Optional.of(beaconList);
         }
+
+        return result;
     }
 
     @Transactional
@@ -163,6 +183,10 @@ public class DatabaseAccessor {
      *
      * @param beaconKey
      *              The unique 32 character key associated with the desired Beacon.
+     *
+     * @return rendezvousOptional
+     *              An optional containing a list of BeaconRendezvous for the given beacon,
+     *              sorted by date ascending. The empty Optional if no rendezvous are found.
      * */
     @Transactional
     public Optional<List<BeaconRendezvous>> findRendezvousByKey(String beaconKey) {
@@ -173,8 +197,10 @@ public class DatabaseAccessor {
                 .findList();
 
         if(rendezvousList == null) {
+            Logger.info("No rendezvous found for beacon with key: " + beaconKey);
             rendezvousOptional = Optional.empty();
         } else {
+            rendezvousList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
             rendezvousOptional = Optional.of(rendezvousList);
         }
 
@@ -188,7 +214,7 @@ public class DatabaseAccessor {
      *              The date for which to see all Rendezvous that occurred
      *
      * @return rendezvousOptional
-     *              An optional that contains a List of BeaconRendezvous for the given date.
+     *              An optional that contains a List of BeaconRendezvous for the given date, sorted by ascending date.
      *              The empty Optional if no such BeaconRendezvous exist.
      * */
     @Transactional
@@ -203,6 +229,7 @@ public class DatabaseAccessor {
             Logger.info("Attempted to find Rendezvous on date which none took place: " + rendezvousDate);
             rendezvousOptional = Optional.empty();
         } else {
+            rendezvousList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
             rendezvousOptional = Optional.of(rendezvousList);
         }
         return rendezvousOptional;
@@ -218,6 +245,6 @@ public class DatabaseAccessor {
     @Transactional
     public void saveRendezvous(BeaconRendezvous rendezvous) {
         rendezvous.save();
-        Logger.info("Saved rendezvous with " + rendezvous.beaconKey);
+        Logger.info("Saved rendezvous with Beacon: " + rendezvous.beaconKey);
     }
 }

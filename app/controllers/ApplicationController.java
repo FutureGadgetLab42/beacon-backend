@@ -93,9 +93,35 @@ public class ApplicationController extends Controller {
      *          response if the given key is not present.
      * */
     @Transactional
-    public Result findBeaconByKey() {
-        Result response = ok("ok");
-        Logger.info("Received request to find Beacon with key: ");
+    public Result findBeaconByKey(String key) {
+        Result response;
+        Logger.info("Received request to find Beacon with key: " + key);
+        Optional<Beacon> beaconOptional = DATABASE_ACCESSOR.findByKey(key);
+
+        if(beaconOptional.isPresent()) {
+            response = ok(Json.toJson(beaconOptional.get()));
+        } else {
+            response = badRequest("Unable to locate beacon with key: " + key);
+        }
+        return response;
+    }
+
+    /**
+     * Retries all Beacons corresponding to the specified user, sorted by Date in ascending order.
+     * */
+    @Transactional
+    public Result findBeaconByUser(String userId) {
+        Result response;
+        Logger.info("Received request to find Beacons for user: " + userId);
+        Optional<List<Beacon>> beaconListOptional = DATABASE_ACCESSOR.findBeaconsForUser(userId);
+
+        if(beaconListOptional.isPresent()) {
+            List<Beacon> beaconList = beaconListOptional.get();
+            beaconList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
+            response = ok(Json.toJson(beaconList));
+        } else {
+            response = badRequest("Unable to locate Beacons for user: " + userId);
+        }
         return response;
     }
 
@@ -117,7 +143,7 @@ public class ApplicationController extends Controller {
         Result response;
         String remoteAddress = request().remoteAddress();
 
-        try{
+        try {
             BeaconRendezvous rendezvous = new BeaconRendezvous(beaconKey, remoteAddress);
             DATABASE_ACCESSOR.recordBeaconRendezvous(rendezvous);
             response = ok(payload());
@@ -128,6 +154,30 @@ public class ApplicationController extends Controller {
             Logger.error("Unable to locate payload due to invalid URI: " + PAYLOAD_PATH);
             response = internalServerError();
         }
+        return response;
+    }
+
+    /**
+     * Finds all Rendezvous for the given Beacon key
+     *
+     * @param beaconKey
+     *          The key corresponding to the desired Beacon
+     *
+     * @return response
+     *          A response containing either serialized BeaconRendezvous objects,
+     *          or an error message indicating that no matching Rendezvous were found.
+     * */
+    public Result findAllRendezvous(String beaconKey) {
+        Result response;
+        Optional<List<BeaconRendezvous>> rendezvousListOptional = DATABASE_ACCESSOR.findRendezvousByKey(beaconKey);
+
+        if(rendezvousListOptional.isPresent()) {
+            response = ok(Json.toJson(rendezvousListOptional.get()));
+        } else {
+            Logger.info("Could not find Rendezvous for Beacon" + beaconKey);
+            response = badRequest("No rendezvous present for key: " + beaconKey);
+        }
+
         return response;
     }
 

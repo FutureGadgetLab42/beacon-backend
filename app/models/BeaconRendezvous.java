@@ -23,7 +23,7 @@ public class BeaconRendezvous extends Model {
     @Required
     public String beaconKey;
 
-    private String remoteAddress;
+    public String remoteAddress;
 
     public static final Find<Long, BeaconRendezvous> FIND = new Find<Long, BeaconRendezvous>(){};
 
