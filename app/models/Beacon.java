@@ -2,6 +2,7 @@ package models;
 
 import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CreatedTimestamp;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import play.data.format.Formats.DateTime;
 import play.data.validation.Constraints.Required;
 
@@ -18,6 +19,7 @@ public class Beacon extends Model {
 
     @DateTime(pattern="dd/MM/yyyy")
     @CreatedTimestamp
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     public Date creationDate;
 
     @Required
