@@ -1,25 +1,23 @@
 ---
 
 - hosts: blue-servers
-  become: yes
+  become: no
   remote_user: cmsc435
   roles:
     - { role: project-deployment, tags: ['blue-servers']}
   environment:
-    APPLICATION_SECRET: "{{ vault_application_secret }}"
-    DATABASE_URL: "{{ vault_database_url }}"
-    DATABASE_USER: "{{ vault_database_username }}"
-    DATABASE_PASS: "{{ vault_database_password }}"
+        APPLICATION_SECRET: "{{ vault_application_secret }}"
+        DATABASE_URL: "{{ vault_database_url }}"
+        DATABASE_USER: "{{ vault_database_username }}"
+        DATABASE_PASS: "{{ vault_database_password }}"
 
 - hosts: gold-servers
-  become: yes
+  become: no
   remote_user: cmsc435
   roles:
     - { role: project-deployment, tags: ['gold-servers']}
-
-
-- hosts: all
-  become: yes
-  remote_user: cmsc435
-  roles:
-    - { role: project-deployment, tags: ['all'] }
+  environment:
+        APPLICATION_SECRET: "{{ vault_application_secret }}"
+        DATABASE_URL: "{{ vault_database_url }}"
+        DATABASE_USER: "{{ vault_database_username }}"
+        DATABASE_PASS: "{{ vault_database_password }}"

@@ -3,22 +3,16 @@
 - include_vars: main.yml
 
 - name: Build executable
-  action: shell cd "{{ repo_path }}" && activator clean dist
-  async: 300
+  local_action: command /usr/local/bin/activator clean dist
   tags:
-     - create-executable
+    - build-executable
 
 - name: Unarchive project
-  unarchive: src = "{{ zip_path}}" dest="{{ destination_zip_path }}"
+  unarchive: src="{{ zip_path }}" dest="{{ destination_zip_path }}"
   tags:
     - unarchive-executable
 
-- name: Set permissions on start script
-  file: path="{{ start_script_path }}" mode=0755
-  tags:
-    - set-permissions
-
 - name: Run start script
-  command: path="{{ start_script_path }}" -Dplay.crypto.secret="{{ application_secret }}" -Dplay.evolutions.db.default.autoApply=true -Dplay.evolutions.db.default.autoApplyDowns=true &
+  shell: cd ~/beacon-backend-1.0/bin && ./beacon-backend -Dplay.evolutions.db.default.autoApply=true -Dplay.evolutions.db.default.autoApplyDowns=true &
   tags:
     - start-application
