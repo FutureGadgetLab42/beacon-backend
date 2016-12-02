@@ -1,13 +1,10 @@
 ---
 
-- include_vars:
-    file: vars.yml
-    dir: "group_vars/vertigo"
-    name: vars-file
+- include_vars: main.yml
 
 - name: Add apt repository for Oracle Java
   become: true
-  apt_repository: repo={{ java_apt_repo }}
+  apt_repository: repo='ppa:webupd8team/java'
   tags:
     - add-java-repo
 
