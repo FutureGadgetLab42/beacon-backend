@@ -8,7 +8,7 @@ create table beacon (
   beacon_key                    varchar(255),
   beacon_name                   varchar(255),
   description                   varchar(255),
-  creation_date                 datetime(6) not null,
+  creation_date                 datetime not null,
   constraint pk_beacon primary key (id)
 );
 
@@ -16,7 +16,7 @@ create table beacon_rendezvous (
   id                            bigint auto_increment not null,
   beacon_key                    varchar(255),
   remote_address                varchar(255),
-  creation_date                 datetime(6) not null,
+  creation_date                 datetime not null,
   constraint pk_beacon_rendezvous primary key (id)
 );
 
