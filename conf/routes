@@ -14,9 +14,6 @@ GET     /viewBeacons                        controllers.ApplicationController.vi
 # Finds the Beacon with given key
 GET     /findByKey/:key                     controllers.ApplicationController.findBeaconByKey(key: String)
 
-# Finds all Beacons for the given user
-GET     /findByUser/:userId                 controllers.ApplicationController.findBeaconByUser(userId: String)
-
 # The given Beacon "phones home" to the server
 GET     /rendezvous/:key                    controllers.ApplicationController.recordBeaconRendezvous(key: String)
 

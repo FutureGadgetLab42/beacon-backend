@@ -19,13 +19,13 @@ public class Beacon extends Model {
 
     @DateTime(pattern="dd/MM/yyyy")
     @CreatedTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss z", timezone="GMT")
     public Date creationDate;
 
     @Required
     public String beaconKey;
 
-    public String userId, beaconName, description;
+    public String beaconName, description;
 
     // Generic query helper for Long IDs
     public static final Find<Long, Beacon> FIND = new Find<Long, Beacon>(){};
@@ -35,14 +35,13 @@ public class Beacon extends Model {
     private Beacon(BeaconBuilder builder) {
         this.beaconKey = builder.beaconKey;
         this.creationDate = builder.creationDate;
-        this.userId = builder.userId;
         this.beaconName = builder.beaconName;
         this.description = builder.description;
     }
 
     public static class BeaconBuilder {
 
-        private String beaconKey, userId, beaconName, description;
+        private String beaconKey, beaconName, description;
         private Date creationDate;
 
         public BeaconBuilder(String beaconKey) {
@@ -64,14 +63,6 @@ public class Beacon extends Model {
 
         public Date getCreationDate() {
             return creationDate;
-        }
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
         }
 
         public String getBeaconName() {

@@ -19,7 +19,7 @@ public class BeaconRendezvous extends Model {
 
     @DateTime(pattern="dd/MM/yyyy")
     @CreatedTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss z", timezone="GMT")
     public Date creationDate;
 
     @Required

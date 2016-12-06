@@ -74,26 +74,6 @@ public class DatabaseAccessor {
     }
 
     /**
-     * Finds all beacons for the given user.
-     *
-     * @param userName
-     *          The username for whom to display Beacons
-     * */
-    @Transactional
-    public Optional<List<Beacon>> findBeaconsForUser(String userName) {
-        List<Beacon> result = Beacon.FIND.where()
-                .like("userId", "%" + userName + "%")
-                .findList();
-        if(result.isEmpty()) {
-            Logger.debug("Unable to find Beacons for user: " + userName);
-            return Optional.empty();
-        } else {
-            result.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
-            return Optional.of(result);
-        }
-    }
-
-    /**
      * Finds all beacons created on the given date
      *
      * @param date

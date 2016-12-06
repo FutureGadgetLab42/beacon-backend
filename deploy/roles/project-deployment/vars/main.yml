@@ -3,8 +3,8 @@
 java_apt_repo: "ppa:webupd8team/java"
 java_installer_name: "oracle-java8-installer"
 
-repo_path: "/Users/Tom/Documents/classes/fall_2016/cmsc435/code/beacons/beacon-backend"
-zip_path: "/Users/Tom/Documents/classes/fall_2016/cmsc435/code/beacons/beacon-backend/target/universal/beacon-backend-1.0.zip"
+repo_path: "/Users/Tom/code/class_projects/beacon-backend"
+zip_path: "/Users/Tom/code/class_projects/beacon-backend/target/universal/beacon-backend-1.0.zip"
 destination_zip_path: "~"
 start_script_path: "/home/cmsc435/beacon-backend-1.0/bin/beacon-backend"
 

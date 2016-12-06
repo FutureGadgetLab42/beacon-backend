@@ -108,25 +108,6 @@ public class ApplicationController extends Controller {
     }
 
     /**
-     * Retries all Beacons corresponding to the specified user, sorted by Date in ascending order.
-     * */
-    @Transactional
-    public Result findBeaconByUser(String userId) {
-        Result response;
-        Logger.info("Received request to find Beacons for user: " + userId);
-        Optional<List<Beacon>> beaconListOptional = DATABASE_ACCESSOR.findBeaconsForUser(userId);
-
-        if(beaconListOptional.isPresent()) {
-            List<Beacon> beaconList = beaconListOptional.get();
-            beaconList.sort((a, b) -> a.creationDate.compareTo(b.creationDate));
-            response = ok(Json.toJson(beaconList));
-        } else {
-            response = badRequest("Unable to locate Beacons for user: " + userId);
-        }
-        return response;
-    }
-
-    /**
      * Records an instance of a Beacon "phoning home"
      *
      * @param beaconKey

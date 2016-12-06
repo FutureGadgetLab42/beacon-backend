@@ -32,7 +32,7 @@ public class BeaconFactory {
      * */
     public Beacon buildBeacon(JsonNode requestJson) throws BeaconCreationExcecption {
         String beaconName = requestJson.findPath("beaconName").asText(),
-                userId = requestJson.findPath("userId").asText(), description = requestJson.findPath("description").asText();
+                description = requestJson.findPath("description").asText();
 
         if(beaconName == null) {
             Logger.warn("Bad request - does not contain name: " + requestJson);
@@ -40,19 +40,13 @@ public class BeaconFactory {
         } else if(description == null) {
             Logger.warn("Bad request - does not contain description: " + requestJson);
             throw new BeaconCreationExcecption("Bad request - does not contain description: " + requestJson);
-        } else if(userId == null) {
-            Logger.warn("Bad request - does not contain user id: " + requestJson);
-            throw new BeaconCreationExcecption("Bad request - does not contain user id: " + requestJson);
-        } else {
-            return buildBeacon(userId, beaconName, description);
+        }  else {
+            return buildBeacon(beaconName, description);
         }
     }
 
     /**
      * Provides a beacon with the desired attributes.
-     *
-     * @param userId
-     *              The unique ID of the user for whom to generate a Beacon.
      *
      * @param beaconName
      *              The name of the Beacon.
@@ -62,9 +56,8 @@ public class BeaconFactory {
      *
      * @return A Beacon with the given fields
      * */
-    private Beacon buildBeacon(String userId, String beaconName, String description) {
+    private Beacon buildBeacon(String beaconName, String description) {
         BeaconBuilder beaconBuilder = new BeaconBuilder(generateBeaconKey());
-        beaconBuilder.setUserId(userId);
         beaconBuilder.setBeaconName(beaconName);
         beaconBuilder.setDescription(description);
         return beaconBuilder.build();
